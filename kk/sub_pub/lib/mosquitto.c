@@ -379,12 +379,15 @@ static int _mosquitto_connect_init(struct mosquitto *mosq, const char *host, int
 	if(!host || port <= 0) return MOSQ_ERR_INVAL;
 
 	if(mosq->host) _mosquitto_free(mosq->host);
+	//要连接broker ip，没设定的话为127.0.0.1
 	mosq->host = _mosquitto_strdup(host);
 	if(!mosq->host) return MOSQ_ERR_NOMEM;
+	//要连接的broker port
 	mosq->port = port;
 
 	if(mosq->bind_address) _mosquitto_free(mosq->bind_address);
 	if(bind_address){
+		//bind_address = null
 		mosq->bind_address = _mosquitto_strdup(bind_address);
 		if(!mosq->bind_address) return MOSQ_ERR_NOMEM;
 	}
@@ -399,12 +402,12 @@ static int _mosquitto_connect_init(struct mosquitto *mosq, const char *host, int
 		COMPAT_CLOSE(mosq->sockpairW);
 		mosq->sockpairW = INVALID_SOCKET;
 	}
-
+#if 0
 	if(_mosquitto_socketpair(&mosq->sockpairR, &mosq->sockpairW)){
 		_mosquitto_log_printf(mosq, MOSQ_LOG_WARNING,
 				"Warning: Unable to open socket pair, outgoing publish commands may be delayed.");
 	}
-
+#endif
 	return MOSQ_ERR_SUCCESS;
 }
 
@@ -419,10 +422,12 @@ int mosquitto_connect_bind(struct mosquitto *mosq, const char *host, int port, i
 	rc = _mosquitto_connect_init(mosq, host, port, keepalive, bind_address);
 	if(rc) return rc;
 
+	//在这之后发送connect报文
 	pthread_mutex_lock(&mosq->state_mutex);
 	mosq->state = mosq_cs_new;
 	pthread_mutex_unlock(&mosq->state_mutex);
 
+	//下面的函数真正的发送MQTT的CONNECT报文
 	return _mosquitto_reconnect(mosq, true);
 }
 
@@ -461,14 +466,7 @@ static int _mosquitto_reconnect(struct mosquitto *mosq, bool blocking)
 	if(!mosq->host || mosq->port <= 0) return MOSQ_ERR_INVAL;
 
 	pthread_mutex_lock(&mosq->state_mutex);
-#ifdef WITH_SOCKS
-	if(mosq->socks5_host){
-		mosq->state = mosq_cs_socks5_new;
-	}else
-#endif
-	{
-		mosq->state = mosq_cs_new;
-	}
+	mosq->state = mosq_cs_new;
 	pthread_mutex_unlock(&mosq->state_mutex);
 
 	pthread_mutex_lock(&mosq->msgtime_mutex);
@@ -504,26 +502,14 @@ static int _mosquitto_reconnect(struct mosquitto *mosq, bool blocking)
 
 	_mosquitto_messages_reconnect_reset(mosq);
 
-#ifdef WITH_SOCKS
-	if(mosq->socks5_host){
-		rc = _mosquitto_socket_connect(mosq, mosq->socks5_host, mosq->socks5_port, mosq->bind_address, blocking);
-	}else
-#endif
-	{
-		rc = _mosquitto_socket_connect(mosq, mosq->host, mosq->port, mosq->bind_address, blocking);
-	}
+	//发送tcp连接
+	rc = _mosquitto_socket_connect(mosq, mosq->host, mosq->port, mosq->bind_address, blocking);
 	if(rc>0){
 		return rc;
 	}
 
-#ifdef WITH_SOCKS
-	if(mosq->socks5_host){
-		return mosquitto__socks5_send(mosq);
-	}else
-#endif
-	{
-		return _mosquitto_send_connect(mosq, mosq->keepalive, mosq->clean_session);
-	}
+	//发送mqtt CLIENT报文
+	return _mosquitto_send_connect(mosq, mosq->keepalive, mosq->clean_session);
 }
 
 int mosquitto_disconnect(struct mosquitto *mosq)

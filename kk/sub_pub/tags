@@ -135,7 +135,7 @@ TIMESTAMP	config.mk	/^TIMESTAMP:=$(shell date "+%F %T%z")$/;"	m
 UNAME	config.mk	/^UNAME:=$(shell uname -s)$/;"	m
 UNSUBACK	lib/mqtt3_protocol.h	39;"	d
 UNSUBSCRIBE	lib/mqtt3_protocol.h	38;"	d
-VERSION	client/sub_client.c	128;"	d	file:
+VERSION	client/sub_client.c	124;"	d	file:
 WITH_THREADING	config.mk	/^WITH_THREADING:=yes$/;"	m
 _CLIENT_CONFIG_H	client/client_shared.h	18;"	d
 _DUMMYPTHREAD_H_	lib/dummypthread.h	2;"	d
@@ -511,7 +511,6 @@ retain	client/pub_client.c	/^static int retain = 0;$/;"	v	file:
 retain	lib/mosquitto.h	/^	bool retain;$/;"	m	struct:mosquitto_message
 snprintf	client/client_shared.c	28;"	d	file:
 snprintf	client/pub_client.c	28;"	d	file:
-snprintf	client/sub_client.c	27;"	d	file:
 snprintf	lib/config.h	15;"	d
 sock	lib/mosquitto_internal.h	/^	mosq_sock_t sock;$/;"	m	struct:mosquitto
 sockpairR	lib/mosquitto_internal.h	/^	mosq_sock_t sockpairR, sockpairW;$/;"	m	struct:mosquitto

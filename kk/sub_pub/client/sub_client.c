@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 	//mosquitto_lib_init();
 
 	//此处指定设备ID2为设备唯一标识
-	if(client_id_generate(&cfg, "I D2")){
+	if(client_id_generate(&cfg, "ID2")){
 		return 1;
 	}
 
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 	rc = client_connect(mosq, &cfg);
 	if(rc) return rc;
 
-	//到此发送了mqtt的CONNECT报文
+	//到此只发送了mqtt的CONNECT报文
 
 	rc = mosquitto_loop_forever(mosq, -1, 1);
 

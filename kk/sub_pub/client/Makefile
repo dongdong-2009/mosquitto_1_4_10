@@ -10,6 +10,7 @@ CC				:= gcc
 all : mosquitto_pub mosquitto_sub
 
 mosquitto_pub : pub_client.o client_shared.o
+	cd ../lib && make
 	${CROSS_COMPILE}${CC} $^ -o $@ ${LDFLAGS} ${LDLIBS}
 
 mosquitto_sub : sub_client.o client_shared.o

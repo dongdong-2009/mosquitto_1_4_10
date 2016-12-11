@@ -639,24 +639,14 @@ int client_connect(struct mosquitto *mosq, struct mosq_config *cfg)
 	char err[1024];
 	int rc;
 
-#ifdef WITH_SRV
-	if(cfg->use_srv){
-		rc = mosquitto_connect_srv(mosq, cfg->host, cfg->keepalive, cfg->bind_address);
-	}else{
-		rc = mosquitto_connect_bind(mosq, cfg->host, cfg->port, cfg->keepalive, cfg->bind_address);
-	}
-#else
+	//printf("bind_address:%s\n",cfg->bind_address);	//要连接的broker ip
+	//printf("cfg->host:%s\n",cfg->host);				//客户端的本机 ip
 	//host:要连的broker，bind_address:本机ip,这里是null
 	rc = mosquitto_connect_bind(mosq, cfg->host, cfg->port, cfg->keepalive, cfg->bind_address);
-#endif
 	if(rc>0){
 		if(!cfg->quiet){
 			if(rc == MOSQ_ERR_ERRNO){
-#ifndef WIN32
 				strerror_r(errno, err, 1024);
-#else
-				FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errno, 0, (LPTSTR)&err, 1024, NULL);
-#endif
 				fprintf(stderr, "Error: %s\n", err);
 			}else{
 				fprintf(stderr, "Unable to connect (%s).\n", mosquitto_strerror(rc));
