@@ -272,6 +272,7 @@ static unsigned int psk_client_callback(SSL *ssl, const char *hint,
 
 int _mosquitto_try_connect(struct mosquitto *mosq, const char *host, uint16_t port, mosq_sock_t *sock, const char *bind_address, bool blocking)
 {
+#if 1
 	int s;
 	int rc = MOSQ_ERR_SUCCESS;
 	*sock = INVALID_SOCKET;
@@ -318,7 +319,7 @@ int _mosquitto_try_connect(struct mosquitto *mosq, const char *host, uint16_t po
 	//free 会导致后续出错
 	//free(broker_info);
 	return rc;
-	
+#endif
 #if 0
 	struct addrinfo hints;
 	struct addrinfo *ainfo, *rp;
@@ -394,8 +395,8 @@ int _mosquitto_try_connect(struct mosquitto *mosq, const char *host, uint16_t po
 	if(!rp){
 		return MOSQ_ERR_ERRNO;
 	}
-#endif
 	return rc;
+#endif
 }
 
 

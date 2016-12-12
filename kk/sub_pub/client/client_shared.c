@@ -639,8 +639,8 @@ int client_connect(struct mosquitto *mosq, struct mosq_config *cfg)
 	char err[1024];
 	int rc;
 
-	//printf("bind_address:%s\n",cfg->bind_address);	//要连接的broker ip
-	//printf("cfg->host:%s\n",cfg->host);				//客户端的本机 ip
+	//printf("bind_address:%s\n",cfg->bind_address);	//客户端 ip
+	//printf("cfg->host:%s\n",cfg->host);				//broker ip
 	//host:要连的broker，bind_address:本机ip,这里是null
 	rc = mosquitto_connect_bind(mosq, cfg->host, cfg->port, cfg->keepalive, cfg->bind_address);
 	if(rc>0){
