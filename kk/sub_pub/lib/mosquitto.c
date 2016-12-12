@@ -801,11 +801,7 @@ int mosquitto_tls_psk_set(struct mosquitto *mosq, const char *psk, const char *i
 
 int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 {
-#ifdef HAVE_PSELECT
-	struct timespec local_timeout;
-#else
 	struct timeval local_timeout;
-#endif
 	fd_set readfds, writefds;
 	int fdcount;
 	int rc;
@@ -814,11 +810,9 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 	time_t now;
 
 	if(!mosq || max_packets < 1) return MOSQ_ERR_INVAL;
-#ifndef WIN32
 	if(mosq->sock >= FD_SETSIZE || mosq->sockpairR >= FD_SETSIZE){
 		return MOSQ_ERR_INVAL;
 	}
-#endif
 
 	FD_ZERO(&readfds);
 	FD_ZERO(&writefds);
@@ -830,39 +824,10 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 		if(mosq->out_packet || mosq->current_out_packet){
 			FD_SET(mosq->sock, &writefds);
 		}
-#ifdef WITH_TLS
-		if(mosq->ssl){
-			if(mosq->want_write){
-				FD_SET(mosq->sock, &writefds);
-			}else if(mosq->want_connect){
-				/* Remove possible FD_SET from above, we don't want to check
-				 * for writing if we are still connecting, unless want_write is
-				 * definitely set. The presence of outgoing packets does not
-				 * matter yet. */
-				FD_CLR(mosq->sock, &writefds);
-			}
-		}
-#endif
 		pthread_mutex_unlock(&mosq->out_packet_mutex);
 		pthread_mutex_unlock(&mosq->current_out_packet_mutex);
 	}else{
-#ifdef WITH_SRV
-		if(mosq->achan){
-			pthread_mutex_lock(&mosq->state_mutex);
-			if(mosq->state == mosq_cs_connect_srv){
-				rc = ares_fds(mosq->achan, &readfds, &writefds);
-				if(rc > maxfd){
-					maxfd = rc;
-				}
-			}else{
-				pthread_mutex_unlock(&mosq->state_mutex);
-				return MOSQ_ERR_NO_CONN;
-			}
-			pthread_mutex_unlock(&mosq->state_mutex);
-		}
-#else
 		return MOSQ_ERR_NO_CONN;
-#endif
 	}
 	if(mosq->sockpairR != INVALID_SOCKET){
 		/* sockpairR is used to break out of select() before the timeout, on a
@@ -883,21 +848,10 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 	}
 
 	local_timeout.tv_sec = timeout/1000;
-#ifdef HAVE_PSELECT
-	local_timeout.tv_nsec = (timeout-local_timeout.tv_sec*1000)*1e6;
-#else
 	local_timeout.tv_usec = (timeout-local_timeout.tv_sec*1000)*1000;
-#endif
 
-#ifdef HAVE_PSELECT
-	fdcount = pselect(maxfd+1, &readfds, &writefds, NULL, &local_timeout, NULL);
-#else
 	fdcount = select(maxfd+1, &readfds, &writefds, NULL, &local_timeout);
-#endif
 	if(fdcount == -1){
-#ifdef WIN32
-		errno = WSAGetLastError();
-#endif
 		if(errno == EINTR){
 			return MOSQ_ERR_SUCCESS;
 		}else{
@@ -906,12 +860,6 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 	}else{
 		if(mosq->sock != INVALID_SOCKET){
 			if(FD_ISSET(mosq->sock, &readfds)){
-#ifdef WITH_TLS
-				if(mosq->want_connect){
-					rc = mosquitto__socket_connect_tls(mosq);
-					if(rc) return rc;
-				}else
-#endif
 				{
 					do{
 						rc = mosquitto_loop_read(mosq, max_packets);
@@ -922,24 +870,14 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 				}
 			}
 			if(mosq->sockpairR != INVALID_SOCKET && FD_ISSET(mosq->sockpairR, &readfds)){
-#ifndef WIN32
 				if(read(mosq->sockpairR, &pairbuf, 1) == 0){
 				}
-#else
-				recv(mosq->sockpairR, &pairbuf, 1, 0);
-#endif
 				/* Fake write possible, to stimulate output write even though
 				 * we didn't ask for it, because at that point the publish or
 				 * other command wasn't present. */
 				FD_SET(mosq->sock, &writefds);
 			}
 			if(FD_ISSET(mosq->sock, &writefds)){
-#ifdef WITH_TLS
-				if(mosq->want_connect){
-					rc = mosquitto__socket_connect_tls(mosq);
-					if(rc) return rc;
-				}else
-#endif
 				{
 					rc = mosquitto_loop_write(mosq, max_packets);
 					if(rc || mosq->sock == INVALID_SOCKET){
@@ -948,11 +886,6 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 				}
 			}
 		}
-#ifdef WITH_SRV
-		if(mosq->achan){
-			ares_process(mosq->achan, &readfds, &writefds);
-		}
-#endif
 	}
 	return mosquitto_loop_misc(mosq);
 }
