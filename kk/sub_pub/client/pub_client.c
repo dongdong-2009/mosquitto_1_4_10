@@ -14,7 +14,6 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -31,6 +30,7 @@ Contributors:
 #include <mosquitto.h>
 #include "client_shared.h"
 
+#include <pthread.h>			//add by mkk
 #define STATUS_CONNECTING 0
 #define STATUS_CONNACK_RECVD 1
 #define STATUS_WAITING 2
@@ -287,7 +287,9 @@ void print_usage(void)
 	printf("\nSee http://mosquitto.org/ for more information.\n\n");
 }
 
-int main(int argc, char *argv[])
+
+int pub(int argc, char *argv[])
+//int main(int argc, char *argv[])
 {
 	struct mosq_config cfg;
 	struct mosquitto *mosq = NULL;
@@ -430,6 +432,7 @@ int main(int argc, char *argv[])
 		}
 	}while(rc == MOSQ_ERR_SUCCESS && connected);
 
+	_mosquitto_send_disconnect(mosq);
 	if(mode == MSGMODE_STDIN_LINE){
 		mosquitto_loop_stop(mosq, false);
 	}
@@ -444,4 +447,32 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Error: %s\n", mosquitto_strerror(rc));
 	}
 	return rc;
+}
+
+void* pub_loop(void *arg)
+{
+	char *argv[] = {"pub","-t","event","-m","I am publish","-d"};
+	int argc = sizeof(argv)/sizeof(char*);
+	pub(argc,argv);
+	//可以连续发送
+	sleep(3);
+	printf("\n\n\n");
+	pthread_exit(NULL);
+}
+
+int main(void)
+{
+	pthread_t pid;
+	int ret;
+
+	while(1)
+	{
+		ret = pthread_create(&pid,NULL,pub_loop,NULL);
+		if(ret)
+		{
+			printf("create thread failed\n");
+			return -1;
+		}
+		pthread_join(pid,NULL);
+	}
 }

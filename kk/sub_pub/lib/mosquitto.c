@@ -402,7 +402,7 @@ static int _mosquitto_connect_init(struct mosquitto *mosq, const char *host, int
 		COMPAT_CLOSE(mosq->sockpairW);
 		mosq->sockpairW = INVALID_SOCKET;
 	}
-#if 0
+#if	0
 	if(_mosquitto_socketpair(&mosq->sockpairR, &mosq->sockpairW)){
 		_mosquitto_log_printf(mosq, MOSQ_LOG_WARNING,
 				"Warning: Unable to open socket pair, outgoing publish commands may be delayed.");
