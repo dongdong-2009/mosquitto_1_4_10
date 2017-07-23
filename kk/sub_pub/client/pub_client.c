@@ -62,12 +62,15 @@ void my_connect_callback(struct mosquitto *mosq, void *obj, int result)
 			case MSGMODE_CMD:
 			case MSGMODE_FILE:
 			case MSGMODE_STDIN_FILE:
+				printf("-->[%s][%s][%d]\n",__FILE__,__func__,__LINE__);
 				rc = mosquitto_publish(mosq, &mid_sent, topic, msglen, message, qos, retain);
 				break;
 			case MSGMODE_NULL:
+				printf("-->[%s][%s][%d]\n",__FILE__,__func__,__LINE__);
 				rc = mosquitto_publish(mosq, &mid_sent, topic, 0, NULL, qos, retain);
 				break;
 			case MSGMODE_STDIN_LINE:
+				printf("-->[%s][%s][%d]\n",__FILE__,__func__,__LINE__);
 				status = STATUS_CONNACK_RECVD;
 				break;
 		}
@@ -288,8 +291,8 @@ void print_usage(void)
 }
 
 
-int pub(int argc, char *argv[])
-//int main(int argc, char *argv[])
+//int pub(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	struct mosq_config cfg;
 	struct mosquitto *mosq = NULL;
@@ -448,7 +451,7 @@ int pub(int argc, char *argv[])
 	}
 	return rc;
 }
-
+#if 0
 void* pub_loop(void *arg)
 {
 	char *argv[] = {"pub","-t","event","-m","I am publish","-d"};
@@ -476,3 +479,4 @@ int main(void)
 		pthread_join(pid,NULL);
 	}
 }
+#endif

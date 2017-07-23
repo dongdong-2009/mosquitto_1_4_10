@@ -301,7 +301,7 @@ listener	lib/mosquitto_internal.h	/^	struct _mqtt3_listener *listener;$/;"	m	str
 load_file	client/pub_client.c	/^int load_file(const char *filename)$/;"	f
 load_stdin	client/pub_client.c	/^int load_stdin(void)$/;"	f
 log_callback_mutex	lib/mosquitto_internal.h	/^	pthread_mutex_t log_callback_mutex;$/;"	m	struct:mosquitto
-main	client/pub_client.c	/^int main(int argc, char *argv[])$/;"	f
+main	client/pub_client.c	/^int main(void)$/;"	f
 main	client/sub_client.c	/^int main(int argc, char *argv[])$/;"	f
 malloc_usable_size	lib/memory_mosq.c	27;"	d	file:
 max_inflight	client/client_shared.h	/^	unsigned int max_inflight;$/;"	m	struct:mosq_config
@@ -365,7 +365,6 @@ mosq_ts_self	lib/mosquitto_internal.h	/^	mosq_ts_self,		\/* Threads started by l
 mosquitto	lib/mosquitto_internal.h	/^struct mosquitto {$/;"	s
 mosquitto__cmp_hostname_wildcard	lib/tls_mosq.c	/^int mosquitto__cmp_hostname_wildcard(char *certname, const char *hostname)$/;"	f
 mosquitto__parse_socks_url	client/client_shared.c	/^static int mosquitto__parse_socks_url(struct mosq_config *cfg, char *url)$/;"	f	file:
-mosquitto__socket_connect_tls	lib/net_mosq.c	/^int mosquitto__socket_connect_tls(struct mosquitto *mosq)$/;"	f
 mosquitto__socks5_read	lib/socks_mosq.c	/^int mosquitto__socks5_read(struct mosquitto *mosq)$/;"	f
 mosquitto__socks5_send	lib/socks_mosq.c	/^int mosquitto__socks5_send(struct mosquitto *mosq)$/;"	f
 mosquitto__threaded_state	lib/mosquitto_internal.h	/^enum mosquitto__threaded_state {$/;"	g
@@ -494,6 +493,8 @@ pthread_mutex_destroy	lib/dummypthread.h	9;"	d
 pthread_mutex_init	lib/dummypthread.h	8;"	d
 pthread_mutex_lock	lib/dummypthread.h	10;"	d
 pthread_mutex_unlock	lib/dummypthread.h	11;"	d
+pub	client/pub_client.c	/^int pub(int argc, char *argv[])$/;"	f
+pub_loop	client/pub_client.c	/^void* pub_loop(void *arg)$/;"	f
 pub_mode	client/client_shared.h	/^	int pub_mode; \/* pub *\/$/;"	m	struct:mosq_config
 qos	client/client_shared.h	/^	int qos;$/;"	m	struct:mosq_config
 qos	client/pub_client.c	/^static int qos = 0;$/;"	v	file:
@@ -510,7 +511,7 @@ retain	client/client_shared.h	/^	bool retain;$/;"	m	struct:mosq_config
 retain	client/pub_client.c	/^static int retain = 0;$/;"	v	file:
 retain	lib/mosquitto.h	/^	bool retain;$/;"	m	struct:mosquitto_message
 snprintf	client/client_shared.c	28;"	d	file:
-snprintf	client/pub_client.c	28;"	d	file:
+snprintf	client/pub_client.c	27;"	d	file:
 snprintf	lib/config.h	15;"	d
 sock	lib/mosquitto_internal.h	/^	mosq_sock_t sock;$/;"	m	struct:mosquitto
 sockpairR	lib/mosquitto_internal.h	/^	mosq_sock_t sockpairR, sockpairW;$/;"	m	struct:mosquitto

@@ -253,9 +253,9 @@ int main(int argc, char *argv[])
 	if(cfg.debug){
 		//判断是否有-d参数，开启debug模式
 		mosquitto_log_callback_set(mosq, my_log_callback);
-		mosquitto_subscribe_callback_set(mosq, my_subscribe_callback);
 	}
 
+	mosquitto_subscribe_callback_set(mosq, my_subscribe_callback);
 	mosquitto_connect_callback_set(mosq, my_connect_callback);
 	mosquitto_message_callback_set(mosq, my_message_callback);
 

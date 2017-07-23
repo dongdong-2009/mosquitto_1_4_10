@@ -402,7 +402,7 @@ static int _mosquitto_connect_init(struct mosquitto *mosq, const char *host, int
 		COMPAT_CLOSE(mosq->sockpairW);
 		mosq->sockpairW = INVALID_SOCKET;
 	}
-#if	0
+#if	1
 	if(_mosquitto_socketpair(&mosq->sockpairR, &mosq->sockpairW)){
 		_mosquitto_log_printf(mosq, MOSQ_LOG_WARNING,
 				"Warning: Unable to open socket pair, outgoing publish commands may be delayed.");
@@ -850,11 +850,11 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 	local_timeout.tv_sec = timeout/1000;
 	local_timeout.tv_usec = (timeout-local_timeout.tv_sec*1000)*1000;
 
-	//fdcount = select(maxfd+1, &readfds, &writefds, NULL, &local_timeout);
+	fdcount = select(maxfd+1, &readfds, &writefds, NULL, &local_timeout);
 	//完整发布一次会触发两次select
 	//订阅开始触发三次，之后收到broker的推送触发一次读集合
 	//注意：此处关闭了socketpair
-	fdcount = select(maxfd+1, &readfds, &writefds, NULL, NULL);
+	//fdcount = select(maxfd+1, &readfds, &writefds, NULL, NULL);
 	if(fdcount == -1){
 		if(errno == EINTR){
 			return MOSQ_ERR_SUCCESS;

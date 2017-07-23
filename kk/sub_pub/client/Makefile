@@ -18,6 +18,7 @@ mosquitto_sub : sub_client.o client_shared.o
 
 
 clean : 
+	cd ../lib && make clean
 	-rm -f *.o mosquitto_pub mosquitto_sub
 
 
